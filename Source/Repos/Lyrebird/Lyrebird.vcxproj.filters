@@ -24,12 +24,18 @@
     <ClCompile Include="Decryptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileAccessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Decryptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
