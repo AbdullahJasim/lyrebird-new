@@ -31,7 +31,7 @@ private:
 	//C is the cipher value
 	//d is a constant with the value of 1921821779
 	//n is the constant 4294434817
-	std::vector<long long> transformNumber(std::vector<int> nums);
+	std::vector<long long> transformNumbers(std::vector<long long> nums);
 
 	//Using the inverse of the function used in getCipherNumbers, we need to obtain the text value
 	std::string decipherNumbers(int* nums);

@@ -38,15 +38,33 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 	vector<string> decryptedTweets;
 	removeExtraChars(encryptedTweets);
 
+	getMappedValues("charValues.txt");
+
 	for (vector<string>::iterator t = encryptedTweets.begin(); t != encryptedTweets.end(); t++) {
-		cout << *t << endl;
+		//cout << *t << endl;
 		
 		string tweet = *t;
+		vector<long long> cipherValues;
 
 		//Group the letters in a group of 6 and get the cipher value
+		//Will not be checking for a null exception here as the length of each tweet is guaranteed to have length of a multiple of 6
+		int i = 0;
+		char group[6];
+		while (i < tweet.length()) {
+			if (i < tweet.length()) group[0] = tweet[i];
+			group[1] = tweet[i + 1];
+			group[2] = tweet[i + 2];
+			group[3] = tweet[i + 3];
+			group[4] = tweet[i + 4];
+			group[5] = tweet[i + 5];
+			i += 6;
 
-		long long temp = getCipherNumber(tweet);
-		//temp = transformNumber(temp);
+			long long temp = getCipherNumber(group);
+			cipherValues.push_back(temp);
+		}
+
+		cipherValues = transformNumbers(cipherValues);
+
 		//tweet = decipherNumber(temp);
 
 		//decryptedTweets.push_back(tweet);
@@ -66,6 +84,7 @@ long long Decryptor::getCipherNumber(std::string givenString) {
 	for (char & c : givenString) {
 		if (c != '\0') {
 			t = VALUES_MAP.find(c);
+
 			if (t == VALUES_MAP.end()) continue;
 			result += t->second * (long long) (pow(BASE_NUM, place));
 			place--;
@@ -86,7 +105,7 @@ void Decryptor::getMappedValues(std::string fileName) {
 	}
 }
 
-std::vector<long long> Decryptor::transformNumber(std::vector<int> nums) {
+std::vector<long long> Decryptor::transformNumbers(std::vector<long long> nums) {
 	vector<long long> result;
 
 	for (unsigned int i = 0; i < nums.size(); i++) {
