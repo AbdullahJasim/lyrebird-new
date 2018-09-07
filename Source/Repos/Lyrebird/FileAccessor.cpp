@@ -4,29 +4,27 @@
 
 using namespace std;
 
-int tweetsNumber = 0;
-
 FileAccessor::FileAccessor() {
 
 }
 
-std::vector<std::string> FileAccessor::parseEncryptedTweets(std::ifstream& tweetsFile) {
+std::vector<std::string> FileAccessor::parseLines(std::ifstream& linesFile) {
 	//The requirements for the assignment states that each tweet can be 1024 char long
 	//There can be any number of tweets
 	//I will however build this solution with the ability to parse any length
-	vector<string> encryptedTweets;
+	vector<string> lines;
 
 	string line;
 
-	while (getline(tweetsFile, line)) {
-		encryptedTweets.push_back(line);
+	while (getline(linesFile, line)) {
+		lines.push_back(line);
 	}
 
-	return encryptedTweets;
+	return lines;
 }
 
 
-std::vector<std::string> FileAccessor::getEncryptedTweets(string fileName) {
+std::vector<std::string> FileAccessor::getLines(string fileName) {
 	ifstream inputFile;
 
 	inputFile.open(fileName);
@@ -37,7 +35,7 @@ std::vector<std::string> FileAccessor::getEncryptedTweets(string fileName) {
 		return {};
 	}
 
-	vector<string> tweets = parseEncryptedTweets(inputFile);
+	vector<string> tweets = parseLines(inputFile);
 
 	inputFile.close();
 	return tweets;
