@@ -4,19 +4,19 @@
 
 #include "FileAccessor.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
 #include <cstdio>
-#include <string>
 #include <map>
 
 //This class will handle all decryption functions of the decrypted tweets
 class Decryptor {
 public:
-	std::vector<std::string> decryptTweets(std::vector<std::string> encryptedTweets);
+	//The main decrypt function, it takes the name of a file and returns the decrypted tweets
+	std::vector<std::string> decryptTweets(std::string fileName);
 
 private:
+	//A helper function of the public interface
+	std::vector<std::string> decryptTweets(std::vector<std::string> encryptedTweets);
+
 	//This function takes a string and removes every 8th character in it starting at the 8th char, as given in the requirements
 	void removeExtraChars(std::vector<std::string>& givenString);
 

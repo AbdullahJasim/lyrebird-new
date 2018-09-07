@@ -4,16 +4,11 @@
 
 using namespace std;
 
-FileAccessor::FileAccessor() {
-
-}
-
 std::vector<std::string> FileAccessor::parseLines(std::ifstream& linesFile) {
 	//The requirements for the assignment states that each tweet can be 1024 char long
 	//There can be any number of tweets
 	//I will however build this solution with the ability to parse any length
 	vector<string> lines;
-
 	string line;
 
 	while (getline(linesFile, line)) {

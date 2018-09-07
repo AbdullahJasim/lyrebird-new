@@ -12,37 +12,19 @@ const long long MOD = 4294434817;
 
 map<char, int> VALUES_MAP;
 
-void Decryptor::removeExtraChars(std::vector<std::string>& givenString) {
-	for (unsigned int i = 0; i < givenString.size(); i++) {
-
-		//Need to erase characters right to left to avoid erasing modified parts of the string
-		//Set c to be the length of the string, then remove the extras after n * 8 character
-		//Decrement c to account for 0th index
-		int c = givenString[i].length();
-		c -= (c % SPACING);
-		c--;
-
-		//Keep erasing every 8th character, using temporary variable to avoid damaging original variable
-		while (c > 0) {
-			string temp = givenString[i];
-			temp.erase(c, 1);
-			c -= SPACING;
-			givenString[i] = temp;
-		}
-	}
+std::vector<std::string> Decryptor::decryptTweets(std::string fileName) {
+	FileAccessor* fa = new FileAccessor;
+	vector<string> tweets = fa->getLines("sample.txt");
+	return decryptTweets(tweets);
 }
 
 std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encryptedTweets) {
-	//FileAccessor* fa;
-
 	vector<string> decryptedTweets;
-	removeExtraChars(encryptedTweets);
 
+	removeExtraChars(encryptedTweets);
 	getMappedValues("charValues.txt");
 
 	for (vector<string>::iterator t = encryptedTweets.begin(); t != encryptedTweets.end(); t++) {
-		//cout << *t << endl;
-
 		string tweet = *t;
 		vector<long long> cipherValues;
 
@@ -72,6 +54,26 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 	}
 
 	return decryptedTweets;
+}
+
+void Decryptor::removeExtraChars(std::vector<std::string>& givenString) {
+	for (unsigned int i = 0; i < givenString.size(); i++) {
+
+		//Need to erase characters right to left to avoid erasing modified parts of the string
+		//Set c to be the length of the string, then remove the extras after n * 8 character
+		//Decrement c to account for 0th index
+		int c = givenString[i].length();
+		c -= (c % SPACING);
+		c--;
+
+		//Keep erasing every 8th character, using temporary variable to avoid damaging original variable
+		while (c > 0) {
+			string temp = givenString[i];
+			temp.erase(c, 1);
+			c -= SPACING;
+			givenString[i] = temp;
+		}
+	}
 }
 
 long long Decryptor::getCipherNumber(std::string givenString) {
