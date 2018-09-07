@@ -16,21 +16,17 @@ std::vector<std::string> FileAccessor::parseEncryptedTweets(std::ifstream& tweet
 	//I will however build this solution with the ability to parse any length
 	vector<string> encryptedTweets;
 
-	char c ;
-	//tweetsFile.get(c);
-
 	string line;
 
 	while (getline(tweetsFile, line)) {
 		encryptedTweets.push_back(line);
-		cout << line << '\n';
 	}
 
 	return encryptedTweets;
 }
 
 
-string* FileAccessor::getEncryptedTweets(string fileName) {
+std::vector<std::string> FileAccessor::getEncryptedTweets(string fileName) {
 	ifstream inputFile;
 
 	inputFile.open(fileName);
@@ -38,15 +34,13 @@ string* FileAccessor::getEncryptedTweets(string fileName) {
 	//File cannot be found / opened, return null
 	if (!inputFile) {
 		cout << "file cannot be opened\n";
-		return 0;
+		return {};
 	}
 
 	vector<string> tweets = parseEncryptedTweets(inputFile);
+
 	inputFile.close();
-
-	string* result = &tweets[0];
-
-	return result;
+	return tweets;
 }
 
 void FileAccessor::saveTweets(std::string* tweets, std::string fileName) {

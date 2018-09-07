@@ -14,7 +14,7 @@ public:
 	FileAccessor();
 
 	//This function gets decrypted tweens from a file
-	std::string* getEncryptedTweets(std::string fileName);
+	std::vector<std::string> getEncryptedTweets(std::string fileName);
 
 	//This function takes a list of tweets and a filename and writes those tweets onto that file / destination
 	void saveTweets(std::string* tweets, std::string fileName);
