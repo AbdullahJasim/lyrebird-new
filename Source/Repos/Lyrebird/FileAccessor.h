@@ -1,7 +1,7 @@
 #pragma once
 #pragma once
-#ifndef FileAccessor
-#define FileAccessor
+#ifndef FILE_ACCESSOR
+#define FILE_ACCESSOR
 
 #include <iostream>
 #include <iomanip>
@@ -12,6 +12,8 @@
 //This class will handle the read / writing functions of files in the system
 class FileAccessor {
 public:
+	FileAccessor();
+
 	//This function gets decrypted tweens from a file
 	std::vector<std::string> getEncryptedTweets(std::string fileName);
 

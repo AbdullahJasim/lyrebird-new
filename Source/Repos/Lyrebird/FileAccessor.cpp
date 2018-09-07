@@ -4,6 +4,12 @@
 
 using namespace std;
 
+int tweetsNumber = 0;
+
+FileAccessor::FileAccessor() {
+
+}
+
 ifstream* openTextFile(string fileName) {
 	ifstream inputFile;
 
@@ -18,42 +24,44 @@ ifstream* openTextFile(string fileName) {
 	return &inputFile;
 }
 
-/*
-vector<string> parseEncryptedTweets(ifstream tweetsFile) {
+
+vector<string> parseEncryptedTweets(ifstream* tweetsFile) {
 	//The requirements for the assignment states that each tweet can be 1024 char long
 	//There can be any number of tweets
 	//I will however build this solution with the ability to parse any length
 	vector<string> encryptedTweets;
 	vector<char> currentTweet;
 
-	char c;
+	char c ;
+	tweetsFile->get(c);
 
-	while (tweetsFile.get(c) != '\0') {
-		currentTweet.push_back(c);
-
-		while (tweetsFile.get(c) != '\n') {
+	while (c != '\0') {
+		while (c != '\n' && c != '\0') {
 			currentTweet.push_back(c);
+			tweetsFile->get(c);
 		}
 
-		encryptedTweets.push_back(currentTweet);
+		string s(currentTweet.begin(), currentTweet.end());
+		encryptedTweets.push_back(s);
+		tweetsNumber++;
 		currentTweet.clear();
 	}
 
 	return encryptedTweets;
 }
-*/
 
 
-//string* getEncryptedTweets(string fileName) {
-	/*ifstream inputFile = openTextFile(fileName);
+string* getEncryptedTweets(string fileName) {
+	ifstream *inputFile = openTextFile(fileName);
 	vector<string> tweets = parseEncryptedTweets(inputFile);
-	inputFile.close();
+	inputFile->close();
 
-	return tweets;
-	*/
-	//}
+	string* result = &tweets[0];
+
+	return result;
+}
 
 void saveTweets(string* tweets, string fileName) {
-
+	
 	return;
 }

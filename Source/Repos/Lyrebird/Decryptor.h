@@ -1,6 +1,6 @@
 #pragma once
-#ifndef Decrypt
-#define Decrypt
+#ifndef DECRYPTOR
+#define DECRYPTOR
 
 #include "FileAccessor.h"
 
