@@ -42,7 +42,7 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 
 	for (vector<string>::iterator t = encryptedTweets.begin(); t != encryptedTweets.end(); t++) {
 		//cout << *t << endl;
-		
+
 		string tweet = *t;
 		vector<long long> cipherValues;
 
@@ -65,10 +65,10 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 
 		cipherValues = transformNumbers(cipherValues);
 
-		//tweet = decipherNumber(temp);
+		vector<char> temp = decipherNumbers(cipherValues);
+		tweet = string (temp.begin(), temp.end());
 
-		//decryptedTweets.push_back(tweet);
-
+		cout << tweet << endl;
 	}
 
 	return decryptedTweets;
@@ -96,12 +96,63 @@ long long Decryptor::getCipherNumber(std::string givenString) {
 	return result;
 }
 
+std::vector<char> Decryptor::decipherNumbers(std::vector<long long> nums) {	
+	char group[6];
+	vector<char> result;
+
+	//Since it's only a group of 6, I decided to manually write each step
+	//While it's more code, it's faster to run through
+	for (unsigned int i = 0; i < nums.size(); i++) {
+		long long temp = nums[i];
+
+		long long remainder = temp % 41;
+		group[5] = getCharacter((int) remainder);
+
+		temp = temp / 41;
+		remainder = temp % 41;
+		group[4] = getCharacter((int)remainder);
+
+		temp = temp / 41;
+		remainder = temp % 41;
+		group[3] = getCharacter((int)remainder);
+
+		temp = temp / 41;
+		remainder = temp % 41;
+		group[2] = getCharacter((int)remainder);
+
+		temp = temp / 41;
+		remainder = temp % 41;
+		group[1] = getCharacter((int)remainder);
+
+		temp = temp / 41;
+		remainder = temp % 41;
+		group[0] = getCharacter((int)remainder);
+
+		result.push_back(group[0]);
+		result.push_back(group[1]);
+		result.push_back(group[2]);
+		result.push_back(group[3]);
+		result.push_back(group[4]);
+		result.push_back(group[5]);
+	}
+
+	return result;
+}
+
 void Decryptor::getMappedValues(std::string fileName) {
 	FileAccessor* fa = new FileAccessor;
 	vector<string> values = fa->getLines(fileName);
 
 	for (unsigned int i = 0; i < values.size(); i++) {
 		VALUES_MAP.insert(pair<char, int>(values[i][0], i));
+	}
+}
+
+char Decryptor::getCharacter(int x) {
+	for (std::map<char, int>::iterator t = VALUES_MAP.begin(); t != VALUES_MAP.end(); t++) {
+		if (t->second == x) {
+			return t->first;
+		}
 	}
 }
 

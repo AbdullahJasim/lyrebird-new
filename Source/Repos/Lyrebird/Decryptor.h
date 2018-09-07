@@ -34,7 +34,7 @@ private:
 	std::vector<long long> transformNumbers(std::vector<long long> nums);
 
 	//Using the inverse of the function used in getCipherNumbers, we need to obtain the text value
-	std::string decipherNumbers(int* nums);
+	std::vector<char> decipherNumbers(std::vector<long long> nums);
 
 	//This function reads a text file, and each first character in each line in that text file will have a value mapped to it that corresponds to its order
 	//The file I use is named charValues.txt
@@ -43,6 +43,9 @@ private:
 
 	//Function to use modular exponentiation formula to avoid excess runtime
 	long long modularExponentiate(long long base, long long exponent, long long mod);
+
+	//Gets a character from the map by its value
+	char getCharacter(int x);
 };
 
 #endif
