@@ -24,14 +24,14 @@ private:
 	//The value for each char is provided via the requirements page
 	//The formula is: valueofChar * (41^5 - positionOfChar)
 	//For example, txdgac =  20 * 415 +24 * 414 + 4 * 413 + 7 * 412 + 1 * 411 + 3 * 410
-	int getCipherNumber(std::string givenString);
+	long long getCipherNumber(std::string givenString);
 
 	//The numbers obtained via the cipher formula need to be mapped onto other numbers
 	//The formula is C ^ d * (mod n)
 	//C is the cipher value
 	//d is a constant with the value of 1921821779
 	//n is the constant 4294434817
-	int* transformNumber(int* nums);
+	std::vector<long long> transformNumber(std::vector<int> nums);
 
 	//Using the inverse of the function used in getCipherNumbers, we need to obtain the text value
 	std::string decipherNumbers(int* nums);
@@ -40,6 +40,9 @@ private:
 	//The file I use is named charValues.txt
 	//This is so I can easily map values without having to hard code them into the program
 	void getMappedValues(std::string fileName);
+
+	//Function to use modular exponentiation formula to avoid excess runtime
+	long long modularExponentiate(long long base, long long exponent, long long mod);
 };
 
 #endif
