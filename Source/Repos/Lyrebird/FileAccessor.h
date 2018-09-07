@@ -8,17 +8,19 @@
 #include <string>
 #include <vector>
 
-//This class will handle the read / writing functions of files in the system
+//This class handles the read / writing functions of files in the system
 class FileAccessor {
 public:
-	//This function gets decrypted tweens from a file
+	//Gets lines from a file
+	//Returns a vector of strings, each string being a line
 	std::vector<std::string> getLines(std::string fileName);
 
-	//This function takes a list of tweets and a filename and writes those tweets onto that file / destination
-	void saveTweets(std::string* tweets, std::string fileName);
+	//Takes a list of tweets and a filename and writes those tweets onto that file / destination
+	void saveFile(std::vector<std::string> lines, std::string fileName);
 
 private:
-	//This function takes a file and parses the encrypted tweets in it
+	//Takes a file and parses the lines in it
+	//Returns a vector of strings, each string being a line
 	std::vector<std::string> parseLines(std::ifstream& tweetsFile);
 };
 

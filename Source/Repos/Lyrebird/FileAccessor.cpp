@@ -1,13 +1,9 @@
 #include "FileAccessor.h"
 
-#include <vector>
-
 using namespace std;
 
 std::vector<std::string> FileAccessor::parseLines(std::ifstream& linesFile) {
-	//The requirements for the assignment states that each tweet can be 1024 char long
-	//There can be any number of tweets
-	//I will however build this solution with the ability to parse any length
+	//There can be any number of tweets, each with any length
 	vector<string> lines;
 	string line;
 
@@ -30,13 +26,19 @@ std::vector<std::string> FileAccessor::getLines(string fileName) {
 		return {};
 	}
 
-	vector<string> tweets = parseLines(inputFile);
+	vector<string> lines = parseLines(inputFile);
 
 	inputFile.close();
-	return tweets;
+	return lines;
 }
 
-void FileAccessor::saveTweets(std::string* tweets, std::string fileName) {
-	
+void FileAccessor::saveFile(std::vector<string> lines, std::string fileName) {
+	ofstream outputFile;
+	outputFile.open(fileName);
+
+	for (int i = 0; i < lines.size(); i++) {
+		outputFile << lines[i] << endl;
+	}
+
 	return;
 }

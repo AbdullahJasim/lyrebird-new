@@ -1,7 +1,8 @@
 #include "Decryptor.h"
 
-#include <vector>
-#include <string>
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 
 using namespace std;
 
@@ -9,27 +10,30 @@ const int SPACING = 8;
 const int BASE_NUM = 41;
 const long long EXPONENT = 1921821779;
 const long long MOD = 4294434817;
+const string VALUES_FILE = "charValues.txt";
 
 map<char, int> VALUES_MAP;
 
-std::vector<std::string> Decryptor::decryptTweets(std::string fileName) {
+std::vector<std::string> Decryptor::decryptTweets(std::string inputFile, std::string outputFile) {
 	FileAccessor* fa = new FileAccessor;
-	vector<string> tweets = fa->getLines("sample.txt");
-	return decryptTweets(tweets);
+	vector<string> tweets = fa->getLines(inputFile);
+	tweets = decryptTweets(tweets); 
+	fa->saveFile(tweets, outputFile);
+	return tweets;
 }
 
 std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encryptedTweets) {
 	vector<string> decryptedTweets;
 
 	removeExtraChars(encryptedTweets);
-	getMappedValues("charValues.txt");
+	getMappedValues(VALUES_FILE);
 
 	for (vector<string>::iterator t = encryptedTweets.begin(); t != encryptedTweets.end(); t++) {
 		string tweet = *t;
 		vector<long long> cipherValues;
 
 		//Group the letters in a group of 6 and get the cipher value
-		//Will not be checking for a null exception here as the length of each tweet is guaranteed to have length of a multiple of 6
+		//Not necessary to check for a null exception here as the length of each tweet is guaranteed to have length of a multiple of 6
 		int i = 0;
 		char group[6];
 		while (i < tweet.length()) {
@@ -49,8 +53,9 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 
 		vector<char> temp = decipherNumbers(cipherValues);
 		tweet = string (temp.begin(), temp.end());
+		trimLine(tweet);
 
-		cout << tweet << endl;
+		decryptedTweets.push_back(tweet);
 	}
 
 	return decryptedTweets;
@@ -59,7 +64,7 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 void Decryptor::removeExtraChars(std::vector<std::string>& givenString) {
 	for (unsigned int i = 0; i < givenString.size(); i++) {
 
-		//Need to erase characters right to left to avoid erasing modified parts of the string
+		//Characters need to be erased right to left to avoid erasing modified parts of the string
 		//Set c to be the length of the string, then remove the extras after n * 8 character
 		//Decrement c to account for 0th index
 		int c = givenString[i].length();
@@ -102,8 +107,8 @@ std::vector<char> Decryptor::decipherNumbers(std::vector<long long> nums) {
 	char group[6];
 	vector<char> result;
 
-	//Since it's only a group of 6, I decided to manually write each step
-	//While it's more code, it's faster to run through
+	//Since it's only a group of 6, it is better to manually write each step
+	//More code, but faster runtime
 	for (unsigned int i = 0; i < nums.size(); i++) {
 		long long temp = nums[i];
 
@@ -194,4 +199,11 @@ long long Decryptor::modularExponentiate(long long base, long long exponent, lon
 		resultOne = (resultOne * resultTwo) % mod;
 		return resultOne;
 	}
+}
+
+
+void Decryptor::trimLine(std::string &line) {
+	line.erase(std::find_if(line.rbegin(), line.rend(), [](int ch) {
+		return !std::isspace(ch);
+	}).base(), line.end());
 }
