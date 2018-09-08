@@ -2,13 +2,14 @@
 
 using namespace std;
 
-int NetworkService::sendMessage(SOCKET currentSocket, std::vector<std::string> lines, int messageSize) {
+int NetworkService::sendMessage(SOCKET currentSocket, char* message, int messageSize) {
+	//char* message = serialize(lines);
 
-	return 0;
+	return send(currentSocket, message, messageSize, 0);
 }
 
-int NetworkService::receiveMessage(SOCKET currentSocket, std::string buffer, int bufferSize) {
-	return 0;
+int NetworkService::receiveMessage(SOCKET currentSocket, char* buffer, int bufferSize) {
+	return recv(currentSocket, buffer, bufferSize, 0);
 }
 
 char* NetworkService::serialize(std::vector<std::string> lines) {

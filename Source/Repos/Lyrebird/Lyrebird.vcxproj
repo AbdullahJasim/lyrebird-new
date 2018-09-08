@@ -151,15 +151,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientNetwork.cpp" />
     <ClCompile Include="Decryptor.cpp" />
     <ClCompile Include="FileAccessor.cpp" />
     <ClCompile Include="Lyrebird.cpp" />
     <ClCompile Include="NetworkService.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ServerNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientNetwork.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="FileAccessor.h" />
     <ClInclude Include="NetworkService.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="ServerNetwork.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
