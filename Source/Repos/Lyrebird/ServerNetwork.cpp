@@ -40,7 +40,7 @@ ServerNetwork::ServerNetwork() {
 		exit(1);
 	}
 
-	u_long mode = 0;
+	u_long mode = 1;
 
 	callRetValue = ioctlsocket(listeningSocket, FIONBIO, &mode);
 	if (callRetValue == SOCKET_ERROR) {
