@@ -84,3 +84,20 @@ bool ServerNetwork::acceptNewClient(unsigned int &id) {
 
 	return false;
 }
+
+int ServerNetwork::receiveData(unsigned int clientId, char* receivingBuffer) {
+
+	if (sessions.find(clientId) != sessions.end())  {
+		SOCKET currentSocket = sessions[clientId];
+		callRetValue = NetworkService::receiveMessage(currentSocket, receivingBuffer, MAX_PACKET_SIZE);
+
+		if (callRetValue == 0) {
+			cout << "Connection to client " << clientId << " closed";
+			closesocket(currentSocket);
+		}
+
+		return callRetValue;
+	}
+
+	return 0;
+}

@@ -23,6 +23,7 @@ public:
 	std::map<unsigned int, SOCKET> sessions;
 
 	bool acceptNewClient(unsigned int &id);
+	int receiveData(unsigned int clientId, char* receivingBuffer);
 };
 
 #endif

@@ -165,6 +165,7 @@
     <ClInclude Include="ClientNetwork.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="FileAccessor.h" />
+    <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkService.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="ServerNetwork.h" />
