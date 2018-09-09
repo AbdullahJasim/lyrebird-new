@@ -66,3 +66,16 @@ ClientNetwork::ClientNetwork() {
 		exit(1);
 	}
 }
+
+int ClientNetwork::receivePackets(char* receivingBuffer) {
+	callRetValue = NetworkService::receiveMessage(connectionSocket, receivingBuffer, MAX_PACKET_SIZE);
+
+	if (callRetValue == 0) {
+		cout << "Connection closed" << endl;
+		closesocket(connectionSocket);
+		WSACleanup();
+		exit(1);
+	}
+
+	return callRetValue;
+}

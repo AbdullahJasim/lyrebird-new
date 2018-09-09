@@ -101,3 +101,18 @@ int ServerNetwork::receiveData(unsigned int clientId, char* receivingBuffer) {
 
 	return 0;
 }
+
+void ServerNetwork::distributeFiles(char* packets, int totalSize) {
+	SOCKET currentSocket;
+	map<unsigned int, SOCKET>::iterator t;
+	int sendResult;
+
+	for (t = sessions.begin(); t != sessions.end(); t++) {
+		currentSocket = t->second;
+		sendResult = NetworkService::sendMessage(currentSocket, packets, totalSize);
+
+		if (sendResult == SOCKET_ERROR) {
+			cout << "Send failed with the error: " << WSAGetLastError() << endl;
+		}
+	}
+}

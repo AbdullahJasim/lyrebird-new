@@ -10,6 +10,10 @@ public:
 	~Client();
 
 	ClientNetwork* cn;
+	char networkData[MAX_PACKET_SIZE];
+
+	void update();
+	void sendActionPackets();
 
 private:
 };

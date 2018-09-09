@@ -17,6 +17,7 @@ class ClientNetwork {
 public:
 	int callRetValue;
 	SOCKET connectionSocket;
+	int receivePackets(char* receivingBuffer);
 
 	ClientNetwork();
 	~ClientNetwork();

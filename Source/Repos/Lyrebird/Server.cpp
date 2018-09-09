@@ -36,10 +36,12 @@ void Server::receiveFromClients() {
 			switch (packet.packet_type) {
 			case INIT_CONNECTION:
 				cout << "Server received initial packet from client" << endl;
+				sendActionPackets();
 				break;
 
 			case ACTION_EVENT:
 				cout << "Server received action event packet from client" << endl;
+				sendActionPackets();
 				break;
 
 			default:
@@ -48,4 +50,15 @@ void Server::receiveFromClients() {
 			}
 		}
 	}
+}
+
+void Server::sendActionPackets() {
+	const unsigned int packetSize = sizeof(Packet);
+	char packetData[packetSize];
+
+	Packet packet;
+	packet.packet_type = ACTION_EVENT;
+	packet.serialize(packetData);
+
+	sn->distributeFiles(packetData, packetSize);
 }

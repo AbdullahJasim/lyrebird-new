@@ -10,8 +10,8 @@ public:
 	~Server();
 
 	void update();
-
 	void receiveFromClients();
+	void sendActionPackets();
 
 private:
 	static unsigned int CLIENT_ID;

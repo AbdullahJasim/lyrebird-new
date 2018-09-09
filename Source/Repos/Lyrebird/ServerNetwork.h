@@ -24,6 +24,7 @@ public:
 
 	bool acceptNewClient(unsigned int &id);
 	int receiveData(unsigned int clientId, char* receivingBuffer);
+	void distributeFiles(char* packets, int totalSize);
 };
 
 #endif
