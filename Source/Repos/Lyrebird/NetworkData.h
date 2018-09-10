@@ -13,6 +13,8 @@ enum PacketTypes {
 
 struct Packet {
 	unsigned int packet_type;
+	//std::vector<std::string> tweets;
+	char* message;
 
 	void serialize(char* data) {
 		memcpy(data, this, sizeof(Packet));

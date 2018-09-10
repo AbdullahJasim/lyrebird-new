@@ -56,7 +56,7 @@ ClientNetwork::ClientNetwork() {
 	}
 
 	//Set socket to be blocking
-	u_long mode = 1;
+	u_long mode = 0;
 
 	callRetValue = ioctlsocket(connectionSocket, FIONBIO, &mode);
 	if (callRetValue == SOCKET_ERROR) {

@@ -35,7 +35,8 @@ void Server::receiveFromClients() {
 
 			switch (packet.packet_type) {
 			case INIT_CONNECTION:
-				cout << "Server received initial packet from client" << endl;
+				//cout << "Server received initial packet from client" << endl;
+				
 				sendActionPackets();
 				break;
 
