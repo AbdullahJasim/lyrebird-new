@@ -101,6 +101,8 @@ int Client::sendData() {
 	//Send initial buffer
 	//The 0 parameter is for flags, need to check what flags are later on
 	iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
+	//char sendbuf2[] = "This is a second test";
+	//iResult = send(ConnectSocket, sendbuf2, (int)strlen(sendbuf2), 0);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Sending initial packet failed" << endl;
 		closesocket(ConnectSocket);
@@ -128,7 +130,6 @@ int Client::receiveData() {
 
 	int iResult;
 	while (1) {
-		//cout << "Client receiving" << endl;
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
 		if (iResult > 0) {

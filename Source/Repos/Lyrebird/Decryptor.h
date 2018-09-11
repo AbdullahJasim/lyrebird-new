@@ -4,7 +4,7 @@
 
 #include "FileAccessor.h"
 
-#include <cstdio>https://msdn.microsoft.com/en-us/library/ms737530%28v=VS.85%29.aspx?f=255&MSPPError=-2147217396
+#include <cstdio>
 #include <map>
 
 //This class handles all decryption functions

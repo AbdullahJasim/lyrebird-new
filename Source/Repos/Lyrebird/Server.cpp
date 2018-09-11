@@ -81,6 +81,18 @@ Server::Server() {
 }
 
 int Server::sendData(const char* recvbuf, int iResult) {
+	//In here, the server reads the encrypted files and sends some of them to clients
+	/*
+	The protocol that I want to use is as follows:
+	1. Server reads the configuration file, which states the names of the files that have the encrypted tweets
+	2. Since we have no information about the length of the tweets, or the number of the tweets, the server will send several packets in quick succession
+	3. If the tweet can fit into a single buffer, we will terminate it with /n, otherwise do not terminate and send the rest via other packets
+	4. If it is the end of the file, terminate with /n/n
+	5. The server will send all of the lines for one file for one client
+	6. Then the client will return the content in a similar manner, which means the server will keep listening to the same client until it's finished
+	*/
+	FileAccessor* fa = new FileAccessor();
+
 	return send(ClientSocket, recvbuf, iResult, 0);
 }
 
@@ -90,7 +102,6 @@ int Server::receiveData() {
 	int iResult, iSendResult;
 
 	while (1) {
-		//cout << "Server receiving" << endl;
 		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0) {
 			cout << "Bytes received: " << iResult << endl;
@@ -106,8 +117,7 @@ int Server::receiveData() {
 		}
 		else if (iResult == 0) {
 			//cout << "Closing connection" << endl;
-		}
-		else {
+		} else {
 			cout << "Receiving data from client failed with error: " << WSAGetLastError() << endl;
 			closesocket(ClientSocket);
 			WSACleanup();

@@ -3,12 +3,12 @@
 #ifndef SERVER
 #define SERVER
 
+#include "FileAccessor.h"
 #include <winsock2.h>
 #include <Windows.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #include <stdio.h>
-#include <iostream>
 
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512

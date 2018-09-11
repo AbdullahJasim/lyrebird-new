@@ -156,12 +156,14 @@
     <ClCompile Include="FileAccessor.cpp" />
     <ClCompile Include="Lyrebird.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="StringUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="FileAccessor.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="StringUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

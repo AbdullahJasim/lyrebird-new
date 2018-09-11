@@ -34,7 +34,7 @@ std::vector<std::string> Decryptor::decryptTweets(std::vector<std::string> encry
 
 		//Group the letters in a group of 6 and get the cipher value
 		//Not necessary to check for a null exception here as the length of each tweet is guaranteed to have length of a multiple of 6
-		int i = 0;
+		unsigned int i = 0;
 		char group[6];
 		while (i < tweet.length()) {
 			if (i < tweet.length()) group[0] = tweet[i];
@@ -161,6 +161,8 @@ char Decryptor::getCharacter(int x) {
 			return t->first;
 		}
 	}
+
+	return NULL;
 }
 
 std::vector<long long> Decryptor::transformNumbers(std::vector<long long> nums) {
