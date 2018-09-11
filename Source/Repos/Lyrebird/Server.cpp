@@ -47,6 +47,7 @@ Server::Server() {
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Binding socket failed" << endl;
+		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		WSACleanup();
 		exit(1);
@@ -57,7 +58,8 @@ Server::Server() {
 
 	//Listen to the socket
 	//SOMAXCONN instructs the Winsock provider for this socket to allow a maximum reasonable number of pending connections in the queue
-	if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
+	iResult = listen(ListenSocket, SOMAXCONN);
+	if (iResult == SOCKET_ERROR) {
 		cout << "Listen failed with error: %ld\n" << WSAGetLastError() << endl;
 		closesocket(ListenSocket);
 		WSACleanup();
@@ -75,7 +77,7 @@ Server::Server() {
 		exit(1);
 	}
 
-
+	closesocket(ListenSocket);
 }
 
 int Server::sendData(const char* recvbuf, int iResult) {
@@ -88,10 +90,13 @@ int Server::receiveData() {
 	int iResult, iSendResult;
 
 	while (1) {
+		//cout << "Server receiving" << endl;
 		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0) {
 			cout << "Bytes received: " << iResult << endl;
+			cout << recvbuf << endl;
 			iSendResult = sendData(recvbuf, iResult);
+			//iSendResult = send(ClientSocket, recvbuf, iResult, 0);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
 				closesocket(ClientSocket);
@@ -100,7 +105,7 @@ int Server::receiveData() {
 			}
 		}
 		else if (iResult == 0) {
-			cout << "Closing connection" << endl;
+			//cout << "Closing connection" << endl;
 		}
 		else {
 			cout << "Receiving data from client failed with error: " << WSAGetLastError() << endl;

@@ -1,5 +1,5 @@
-
 #include "Client.h"
+
 using namespace std;
 
 //Constructor, socket needs to be initialized here
@@ -39,7 +39,7 @@ Client::Client() {
 
 	//Get server address and port
 	//For here I am using local address, this should be replaced by the server's IP address
-	iResult = getaddrinfo("127.0.01", DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
 
 	//Check if getting the address failed, exit with error
 	if (iResult != 0) {
@@ -54,23 +54,28 @@ Client::Client() {
 	//Assign the value obtained earlier to the ptr variable, since this will be the address struct we use from now on
 	ptr = result;
 
-	//Create the socket with the obtained address
-	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+	for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+		//Create the socket with the obtained address
+		ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 
-	//Check if it failed, throw error
-	if (ConnectSocket == INVALID_SOCKET) {
-		cout << "Error connecting socket" << endl;
-		WSACleanup();
-		exit(1);
-	}
+		//Check if it failed, throw error
+		if (ConnectSocket == INVALID_SOCKET) {
+			cout << "Error connecting socket" << endl;
+			WSACleanup();
+			exit(1);
+		}
 
-	//Connect the socket to the server
-	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+		//Connect the socket to the server
+		iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 
-	//Check if connection failed, close socket and assign the variable an invalid socket value
-	if (iResult == SOCKET_ERROR) {
-		closesocket(ConnectSocket);
-		ConnectSocket == INVALID_SOCKET;
+		//Check if connection failed, close socket and assign the variable an invalid socket value
+		if (iResult == SOCKET_ERROR) {
+			closesocket(ConnectSocket);
+			ConnectSocket == INVALID_SOCKET;
+			continue;
+		}
+
+		break;
 	}
 
 	//Ideally should be trying the next address
@@ -123,6 +128,7 @@ int Client::receiveData() {
 
 	int iResult;
 	while (1) {
+		//cout << "Client receiving" << endl;
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
 		if (iResult > 0) {

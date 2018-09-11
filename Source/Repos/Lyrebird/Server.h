@@ -26,6 +26,7 @@ public:
 	SOCKET ClientSocket;
 
 	Server();
+	void update();
 	int sendData(const char* recvbuf, int iResult);
 	int receiveData();
 	int disconnect();
