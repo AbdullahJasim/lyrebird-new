@@ -100,7 +100,7 @@ int Client::sendData() {
 		cout << "Sending initial packet failed" << endl;
 		closesocket(ConnectSocket);
 		WSACleanup();
-		return 1;
+		return -1;
 	}
 
 	cout << "Bytes send: " << iResult << endl;
@@ -113,7 +113,7 @@ int Client::sendData() {
 		cout << "Shutting down the client's socket failed" << endl;
 		closesocket(ConnectSocket);
 		WSACleanup();
-		return 1;
+		return -1;
 	}
 }
 
@@ -135,4 +135,18 @@ int Client::receiveData() {
 			return -1;
 		}
 	}
+}
+
+int Client::disconnect() {
+	int iResult = shutdown(ConnectSocket, SD_SEND);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Shutting down the clinet's socet failed" << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return -1;
+	}
+
+	closesocket(ConnectSocket);
+	WSACleanup();
+	return 0;
 }

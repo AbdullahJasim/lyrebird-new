@@ -27,7 +27,7 @@ public:
 	Client();
 	int sendData();
 	int receiveData();
-
+	int disconnect();
 };
 
 #endif
