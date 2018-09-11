@@ -43,7 +43,7 @@ Client::Client() {
 
 	//Check if getting the address failed, exit with error
 	if (iResult != 0) {
-		cout << "Getting the server address failed" << endl;
+		cout << "Getting the address failed" << endl;
 		WSACleanup();
 		exit(1);
 	}

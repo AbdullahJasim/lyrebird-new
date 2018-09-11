@@ -19,8 +19,14 @@ class Server {
 public:
 	SOCKET ConnectSocket;
 
+	//We need an additional socket here that will listen to all new client requests
+	SOCKET ListenSocket;
+
+	//Array for client socket
+	SOCKET ClientSocket;
+
 	Server();
-	int sendData();
+	int sendData(const char* recvbuf, int iResult);
 	int receiveData();
 	int disconnect();
 };
