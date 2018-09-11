@@ -151,11 +151,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
     <ClCompile Include="Decryptor.cpp" />
     <ClCompile Include="FileAccessor.cpp" />
     <ClCompile Include="Lyrebird.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Client.h" />
     <ClInclude Include="Decryptor.h" />
     <ClInclude Include="FileAccessor.h" />
   </ItemGroup>
