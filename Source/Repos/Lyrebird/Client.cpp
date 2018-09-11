@@ -36,4 +36,103 @@ Client::Client() {
 	hints.ai_family = AF_UNSPEC; //Address family
 	hints.ai_socktype = SOCK_STREAM; //Socket type
 	hints.ai_protocol = IPPROTO_TCP; //Protocol type
+
+	//Get server address and port
+	//For here I am using local address, this should be replaced by the server's IP address
+	iResult = getaddrinfo("127.0.01", DEFAULT_PORT, &hints, &result);
+
+	//Check if getting the address failed, exit with error
+	if (iResult != 0) {
+		cout << "Getting the server address failed" << endl;
+		WSACleanup();
+		exit(1);
+	}
+
+	//Set the initial value of the connection socket to invalid
+	ConnectSocket = INVALID_SOCKET;
+
+	//Assign the value obtained earlier to the ptr variable, since this will be the address struct we use from now on
+	ptr = result;
+
+	//Create the socket with the obtained address
+	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+
+	//Check if it failed, throw error
+	if (ConnectSocket == INVALID_SOCKET) {
+		cout << "Error connecting socket" << endl;
+		WSACleanup();
+		exit(1);
+	}
+
+	//Connect the socket to the server
+	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
+
+	//Check if connection failed, close socket and assign the variable an invalid socket value
+	if (iResult == SOCKET_ERROR) {
+		closesocket(ConnectSocket);
+		ConnectSocket == INVALID_SOCKET;
+	}
+
+	//Ideally should be trying the next address
+	//But for this project simply free the resource before throwing the error
+	freeaddrinfo(result);
+	if (ConnectSocket == INVALID_SOCKET) {
+		cout << "Unable to connect to server" << endl;
+		WSACleanup();
+		exit(1);
+	}
+}
+
+int Client::sendData() {
+	int recvbuflen = DEFAULT_BUFLEN;
+
+	//Side note, char* sendbuf = "This is a test"; will throw an error, even though that is what is used in the example
+	//That's because char* does not have a constant size, while char[] does
+	//So I will be using char sendbuf[], should lead to the same result
+	char sendbuf[] = "This is a test";
+
+	int iResult;
+
+	//Send initial buffer
+	//The 0 parameter is for flags, need to check what flags are later on
+	iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Sending initial packet failed" << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	cout << "Bytes send: " << iResult << endl;
+
+	//Shut down the connection for sending, as we will not be sending anymore for now
+	//This will have to be removed for the actual project as the client will have to keep sending data
+	//But this will need to be excuted sometime to safely close the sockets
+	iResult = shutdown(ConnectSocket, SD_SEND);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Shutting down the client's socket failed" << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return 1;
+	}
+}
+
+int Client::receiveData() {
+	int recvbuflen = DEFAULT_BUFLEN;
+	char recvbuf[DEFAULT_BUFLEN];
+
+	int iResult;
+	while (1) {
+		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+
+		if (iResult > 0) {
+			cout << "Bytes received: " << iResult << endl;
+		} else if (iResult == 0) {
+			cout << "Connection closed" << endl;
+			return 0;
+		} else {
+			cout << "Client receive failed with error: " << WSAGetLastError() << endl;
+			return -1;
+		}
+	}
 }

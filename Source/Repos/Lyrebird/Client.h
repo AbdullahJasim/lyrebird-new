@@ -14,12 +14,19 @@
 #include <iostream>
 
 #define DEFAULT_PORT "27015"
+#define DEFAULT_BUFLEN 512
 
 #pragma comment(lib, "Ws2_32.lib")
 
 class Client {
-	public:
+public:
+
+	//Making this global as it will be used in several functions
+	SOCKET ConnectSocket;
+
 	Client();
+	int sendData();
+	int receiveData();
 
 };
 
