@@ -86,6 +86,23 @@ Client::Client() {
 		WSACleanup();
 		exit(1);
 	}
+
+	//Change socket mode to non-blocking
+	u_long iMode = 1;
+
+	iResult = ioctlsocket(ConnectSocket, FIONBIO, &iMode);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Changing socket to non-blocking failed" << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		exit(1);
+	}
+}
+
+void Client::update() {
+	while (1) {
+		receiveData();
+	}
 }
 
 int Client::sendData() {
@@ -110,7 +127,7 @@ int Client::sendData() {
 		return -1;
 	}
 
-	cout << "Bytes send: " << iResult << endl;
+	//cout << "Bytes sent: " << iResult << endl;
 
 	//Shut down the connection for sending, as we will not be sending anymore for now
 	//This will have to be removed for the actual project as the client will have to keep sending data
@@ -129,17 +146,19 @@ int Client::receiveData() {
 	char recvbuf[DEFAULT_BUFLEN];
 
 	int iResult;
-	while (1) {
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
+	while (1) {
+		//cout << "Receiving" << endl;
+		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		//cout << recvbuf << endl;
 		if (iResult > 0) {
-			cout << "Bytes received: " << iResult << endl;
+			cout << "Client received: " << recvbuf << endl;
 		} else if (iResult == 0) {
 			cout << "Connection closed" << endl;
 			return 0;
 		} else {
-			cout << "Client receive failed with error: " << WSAGetLastError() << endl;
-			return -1;
+			//cout << "Client receive failed with error: " << WSAGetLastError() << endl;
+			//return -1;
 		}
 	}
 }

@@ -14,7 +14,7 @@
 #include <iostream>
 
 #define DEFAULT_PORT "27015"
-#define DEFAULT_BUFLEN 512
+#define DEFAULT_BUFLEN 4096
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -25,6 +25,7 @@ public:
 	SOCKET ConnectSocket;
 
 	Client();
+	void update();
 	int sendData();
 	int receiveData();
 	int disconnect();

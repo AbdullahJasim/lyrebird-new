@@ -2,11 +2,14 @@
 
 using namespace std;
 
+unsigned int Server::clientId;
+
 //Much like the client class, the constructor is pretty long
 //Some of the functions / lines are shared with the client and should be made available in a utility class for both classes
 Server::Server() {
 	WSADATA wsaData;
 	int iResult;
+	clientId = 0;
 
 	//Initialize Winsock, check for errors
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -43,6 +46,16 @@ Server::Server() {
 		exit(1);
 	}
 
+	//Change socket mode to non-blocking
+	u_long iMode = 1;
+	iResult = ioctlsocket(ListenSocket, FIONBIO, &iMode);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Changing socket mode to non-blocking failed" << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		exit(1);
+	}
+
 	//Need to bind a local address to a socket in here
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
@@ -56,6 +69,11 @@ Server::Server() {
 	//result address info is no longer needed after binding
 	freeaddrinfo(result);
 
+	//Before listening to sockets to check if new clients are connecting, server needs to prep files
+	fa = new FileAccessor();
+	su = new StringUtilities();
+	files = fa->getLines(configFile);
+
 	//Listen to the socket
 	//SOMAXCONN instructs the Winsock provider for this socket to allow a maximum reasonable number of pending connections in the queue
 	iResult = listen(ListenSocket, SOMAXCONN);
@@ -68,6 +86,7 @@ Server::Server() {
 
 	//Accepting a socket
 	//Normally this needs to be in a loop to continue accepting clients
+	/*
 	ClientSocket = INVALID_SOCKET;
 	ClientSocket = accept(ListenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
@@ -78,9 +97,28 @@ Server::Server() {
 	}
 
 	closesocket(ListenSocket);
+	*/
 }
 
-int Server::sendData(const char* recvbuf, int iResult) {
+void Server::update() {
+	while (1) {
+		//Each frame, the server will check for new clients and then it will listen to already connected clients
+		ClientSocket = INVALID_SOCKET;
+		ClientSocket = accept(ListenSocket, NULL, NULL);
+		//If a new client is found, inser the mapping of its socket to the sessions table
+		if (ClientSocket != INVALID_SOCKET) {
+			sessions.insert(pair<unsigned int, SOCKET>(clientId, ClientSocket));
+			clientId++;
+		}
+
+		receiveData();
+	}
+
+	exit(1);
+}
+
+int Server::sendData(SOCKET targetSocket, const char* recvbuf, int iResult) {
+	//cout << "Sending" << endl;
 	//In here, the server reads the encrypted files and sends some of them to clients
 	/*
 	The protocol that I want to use is as follows:
@@ -91,9 +129,20 @@ int Server::sendData(const char* recvbuf, int iResult) {
 	5. The server will send all of the lines for one file for one client
 	6. Then the client will return the content in a similar manner, which means the server will keep listening to the same client until it's finished
 	*/
-	FileAccessor* fa = new FileAccessor();
 
-	return send(ClientSocket, recvbuf, iResult, 0);
+	//All files have been sent already, no need to send more data
+	//Might need to modify this to signal the clients to close their connections
+	if (filesIndex >= files.size()) return 0;
+
+	//Send the contents of the next file to the client
+	//Change the contents of the files into a string
+	string temp = (su->vectorToString(fa->getLines(files[filesIndex++])));
+	const char* tempChar = temp.c_str();
+	int buflen = DEFAULT_BUFLEN;
+
+	cout << "Server sending" << tempChar << endl;
+
+	return send(targetSocket, tempChar, buflen, 0);
 }
 
 int Server::receiveData() {
@@ -101,24 +150,24 @@ int Server::receiveData() {
 	char recvbuf[DEFAULT_BUFLEN];
 	int iResult, iSendResult;
 
-	while (1) {
-		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+	map<unsigned int, SOCKET>::iterator it;
+	for (it = sessions.begin(); it != sessions.end(); it++) {
+		ConnectSocket = it->second;
+		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+
 		if (iResult > 0) {
-			cout << "Bytes received: " << iResult << endl;
-			cout << recvbuf << endl;
-			iSendResult = sendData(recvbuf, iResult);
-			//iSendResult = send(ClientSocket, recvbuf, iResult, 0);
+			//cout << "Server received" << endl;
+			//cout << recvbuf << endl;
+			iSendResult = sendData(ConnectSocket, recvbuf, iResult);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
 				closesocket(ClientSocket);
 				WSACleanup();
 				return -1;
 			}
-		}
-		else if (iResult == 0) {
-			//cout << "Closing connection" << endl;
+		} else if (iResult == 0) {
+
 		} else {
-			cout << "Receiving data from client failed with error: " << WSAGetLastError() << endl;
 			closesocket(ClientSocket);
 			WSACleanup();
 			return -1;
