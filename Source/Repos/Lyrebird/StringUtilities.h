@@ -12,6 +12,10 @@ class StringUtilities {
 public:
 	std::string vectorToString(std::vector<std::string>);
 	std::vector<std::string> stringToVector(std::string);
+	std::vector<std::string> stringToVector(std::string input, std::string delim);
+	std::vector<std::string> splitLine(std::string line);
+	bool wildcardCompare(std::string input1, std::string input2);
+
 private:
 };
 

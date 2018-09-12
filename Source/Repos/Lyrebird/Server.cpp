@@ -7,7 +7,10 @@ unsigned int Server::clientId;
 Server::Server() {
 	WSADATA wsaData;
 	int iResult;
+
 	clientId = 0;
+	filesIndex = 0;
+	configFile = "config.txt";
 
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -96,28 +99,31 @@ void Server::update() {
 	exit(1);
 }
 
-int Server::sendData(SOCKET targetSocket, const char* recvbuf, int iResult) {
-	//cout << "Sending" << endl;
-	//In here, the server reads the encrypted files and sends some of them to clients
-	/*
-	The protocol that I want to use is as follows:
-	1. Server reads the configuration file, which states the names of the files that have the encrypted tweets
-	2. Since we have no information about the length of the tweets, or the number of the tweets, the server will send several packets in quick succession
-	3. If the tweet can fit into a single buffer, we will terminate it with /n, otherwise do not terminate and send the rest via other packets
-	4. If it is the end of the file, terminate with /n/n
-	5. The server will send all of the lines for one file for one client
-	6. Then the client will return the content in a similar manner, which means the server will keep listening to the same client until it's finished
-	*/
+int Server::sendData(unsigned int client, SOCKET targetSocket) {
 
 	//All files have been sent already, no need to send more data
 	//Might need to modify this to signal the clients to close their connections
-	if (filesIndex >= files.size()) return 0;
+	if (filesIndex >= files.size()) {
+		//signalClientsToClose();
+		//waitForAllResponses();
+		//disconnect();
+		return -1;
+	}
 
 	//Send the contents of the next file to the client
 	//Change the contents of the files into a string
-	string temp = (su->vectorToString(fa->getLines(files[filesIndex++])));
-	const char* tempChar = temp.c_str();
+	string currentLine = (su->vectorToString(fa->getLines(files[filesIndex])));
+
+	cout << "Line is " << currentLine << endl;
+
+	vector<string> fileNames = su->splitLine(files[filesIndex]);
+
+	cout << "Files are: " << fileNames[0] << " and " << fileNames[1] << endl;
+
+	const char* tempChar = fileNames[0].c_str(); //temp.c_str();
 	int buflen = DEFAULT_BUFLEN;
+	filesDistributed.insert(pair<unsigned int, string>(client, fileNames[1]));
+	filesIndex++;
 
 	cout << "Server sending" << tempChar << endl;
 
@@ -135,7 +141,16 @@ int Server::receiveData() {
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
 		if (iResult > 0) {
-			iSendResult = sendData(ConnectSocket, recvbuf, iResult);
+			cout << "Received packet from client" << endl;
+			if (!su->wildcardCompare(recvbuf, "INITIATE_CONNECTION")) { //recvbuf != "INITIATE_CONNECTION") {
+				cout << "Received decrypted string" << endl;
+				vector<string> output = su->stringToVector(recvbuf);
+				map<unsigned int, string>::iterator tempIt;
+				tempIt = filesDistributed.find(it->first);
+				fa->saveFile(output, tempIt->second);
+			}
+
+			iSendResult = sendData(it->first, ConnectSocket);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
 				closesocket(ClientSocket);
@@ -145,9 +160,8 @@ int Server::receiveData() {
 		} else if (iResult == 0) {
 
 		} else {
-			closesocket(ClientSocket);
-			WSACleanup();
-			return -1;
+			//closesocket(ClientSocket);
+			//WSACleanup();
 		}
 	}
 
@@ -168,4 +182,16 @@ int Server::disconnect() {
 	closesocket(ClientSocket);
 	WSACleanup();
 	return 0;
+}
+
+void Server::signalClientsToClose() {
+	//Once all files have been decrypted, send the string "TERMINATE_CONNECTION" to all clients
+	//This signals to the cliens that they need to close their connections
+
+	char endSignal[] = "TERMINATE_CONNECTION";
+
+	map<unsigned int, SOCKET>::iterator it;
+	for (it = sessions.begin(); it != sessions.end(); it++) {
+		send(it->second, endSignal, 21, 0);
+	}
 }

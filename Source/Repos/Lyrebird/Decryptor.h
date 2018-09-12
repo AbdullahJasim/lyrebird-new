@@ -13,10 +13,10 @@ public:
 	//The main decrypt function, it takes the name of a file and returns the decrypted tweets
 	std::vector<std::string> decryptTweets(std::string inputFile, std::string outputFile);
 
-private:
-	//A helper function of the public interface
+	//A helper function, takes the encrypted lines and returns the decrypted ones
 	std::vector<std::string> decryptTweets(std::vector<std::string> encryptedTweets);
 
+private:
 	//Remove every 8th character in a given string
 	void removeExtraChars(std::vector<std::string>& givenString);
 

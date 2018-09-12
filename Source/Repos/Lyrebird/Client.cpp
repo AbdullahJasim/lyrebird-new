@@ -77,7 +77,7 @@ void Client::update() {
 
 int Client::sendData() {
 	int recvbuflen = DEFAULT_BUFLEN;
-	char sendbuf[] = "INITIAL_PACKET";
+	char sendbuf[] = "INITIATE_CONNECTION";
 	int iResult;
 
 	iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
@@ -100,20 +100,30 @@ int Client::sendData() {
 int Client::receiveData() {
 	int recvbuflen = DEFAULT_BUFLEN;
 	char recvbuf[DEFAULT_BUFLEN];
-
 	int iResult;
 
+	decryptor = new Decryptor();
+	su = new StringUtilities();
+
 	while (1) {
+		iResult = 0;
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0) {
-			cout << "Client received: " << recvbuf << endl;
-			//Call decrypt here
+			cout << "Client received to decrypt: " << recvbuf << endl;
+			//There's an issue where the rest of the packets are lost here, fix later
+			//recv is also returning a value > 0 the second time it gets called, even when server
+			//does not send any data, resulting in an empty recvbuf (or \n)
+			vector<string> tweets = su->stringToVector(recvbuf);
+			vector<string> decryptedTweets = decryptor->decryptTweets(tweets);
+
+			for (unsigned int i = 0; i < decryptedTweets.size(); i++) {
+				cout << decryptedTweets[i] << endl;
+			}
 		} else if (iResult == 0) {
 			//cout << "Connection closed" << endl;
 			//return 0;
 		} else {
-			//cout << "Client receive failed with error: " << WSAGetLastError() << endl;
-			//return -1;
+			//disconnect();
 		}
 	}
 }
@@ -121,7 +131,7 @@ int Client::receiveData() {
 int Client::disconnect() {
 	int iResult = shutdown(ConnectSocket, SD_SEND);
 	if (iResult == SOCKET_ERROR) {
-		cout << "Shutting down the clinet's socet failed" << endl;
+		cout << "Shutting down the clinet's socket failed" << endl;
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return -1;

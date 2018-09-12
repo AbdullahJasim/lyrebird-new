@@ -24,21 +24,23 @@ public:
 	SOCKET ClientSocket;
 
 	std::map<unsigned int, SOCKET> sessions;
+	std::map<unsigned int, std::string> filesDistributed;
 	FileAccessor* fa;
 	StringUtilities* su;
-	std::string configFile = "config.txt";
+	std::string configFile;
 	std::vector<std::string> files;
-	int filesIndex = 0;
+	int filesIndex;
 
 	Server();
 	void update();
-	int sendData(SOCKET targetSocket, const char* recvbuf, int iResult);
-	int receiveData();
 	int disconnect();
 
 private:
+	int sendData(unsigned int client, SOCKET targetSocket);
+	int receiveData();
 	static unsigned int clientId;
 	void loadFiles();
+	void signalClientsToClose();
 };
 
 #endif

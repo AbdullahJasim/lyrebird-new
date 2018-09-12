@@ -10,9 +10,14 @@ string StringUtilities::vectorToString(vector<string> lines) {
 
 	return imploded.str();
 }
+
 vector<string> StringUtilities::stringToVector(string input) {
+	cout << "Parsing " << input << endl;
+	return stringToVector(input, "\n");
+}
+
+vector<string> StringUtilities::stringToVector(string input, string delim) {
 	vector<string> results;
-	string delim = "\n";
 	string temp;
 
 	size_t pos = input.find(delim);
@@ -25,4 +30,24 @@ vector<string> StringUtilities::stringToVector(string input) {
 	}
 
 	return results;
+}
+
+vector<string> StringUtilities::splitLine(string line) {
+	return stringToVector(line, " ");
+}
+
+bool StringUtilities::wildcardCompare (string input1, string input2) {
+	int i = 0;
+
+	while (input1.at(i) != '\0' && input2.at(i) != '\0') {
+		if (input1.at(i) != input2.at(i)) {
+			cout << "Comparing" << input1.at(i) << " and " << input2.at(i) << endl;
+			//cout << "False" << endl;
+			return false;
+		}
+		i++;
+	}
+
+	cout << "True" << endl;
+	return true;
 }

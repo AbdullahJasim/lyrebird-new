@@ -5,6 +5,7 @@
 #define CLIENT
 
 #include "Decryptor.h"
+#include "StringUtilities.h"
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -18,12 +19,16 @@ class Client {
 public:
 
 	SOCKET ConnectSocket;
+	Decryptor* decryptor;
+	StringUtilities* su;
 
 	Client();
 	void update();
+	int disconnect();
+
+private:
 	int sendData();
 	int receiveData();
-	int disconnect();
 };
 
 #endif
