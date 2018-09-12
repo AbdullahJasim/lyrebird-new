@@ -13,18 +13,14 @@
 #include <map>
 
 #define DEFAULT_PORT "27015"
-#define DEFAULT_BUFLEN 512
+#define DEFAULT_BUFLEN 4096
 
 #pragma comment(lib, "Ws2_32.lib")
 
 class Server {
 public:
 	SOCKET ConnectSocket;
-
-	//We need an additional socket here that will listen to all new client requests
 	SOCKET ListenSocket;
-
-	//Array for client socket
 	SOCKET ClientSocket;
 
 	std::map<unsigned int, SOCKET> sessions;
@@ -36,14 +32,13 @@ public:
 
 	Server();
 	void update();
-	//bool acceptNewClients(unsigned int &id);
 	int sendData(SOCKET targetSocket, const char* recvbuf, int iResult);
 	int receiveData();
 	int disconnect();
 
 private:
 	static unsigned int clientId;
-	//void receiveFromClients();
+	void loadFiles();
 };
 
 #endif

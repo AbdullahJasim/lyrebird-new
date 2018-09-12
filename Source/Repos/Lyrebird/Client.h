@@ -4,24 +4,19 @@
 #ifndef CLIENT
 #define CLIENT
 
-//For some reason including Windows.h first throws several errors
-//This is possibly because winsock2.h is included in Windows.h and a double include is generating errors
+#include "Decryptor.h"
 #include <winsock2.h>
-#include <Windows.h>
 #include <ws2tcpip.h>
-#include <iphlpapi.h>
-#include <stdio.h>
-#include <iostream>
 
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 4096
+#define SERVER_ADDRESS "127.0.0.1"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 class Client {
 public:
 
-	//Making this global as it will be used in several functions
 	SOCKET ConnectSocket;
 
 	Client();

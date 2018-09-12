@@ -4,14 +4,11 @@ using namespace std;
 
 unsigned int Server::clientId;
 
-//Much like the client class, the constructor is pretty long
-//Some of the functions / lines are shared with the client and should be made available in a utility class for both classes
 Server::Server() {
 	WSADATA wsaData;
 	int iResult;
 	clientId = 0;
 
-	//Initialize Winsock, check for errors
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		cout << "Initializing Winsock failed" << endl;
@@ -26,10 +23,8 @@ Server::Server() {
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
-	//Note that a flag is added to the server's hints struct
 	hints.ai_flags = AI_PASSIVE;
 
-	//The address is passed as NULL here, as opposed to an actual address
 	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		cout << "Getting the address failed" << endl;
@@ -46,8 +41,8 @@ Server::Server() {
 		exit(1);
 	}
 
-	//Change socket mode to non-blocking
 	u_long iMode = 1;
+
 	iResult = ioctlsocket(ListenSocket, FIONBIO, &iMode);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Changing socket mode to non-blocking failed" << endl;
@@ -56,7 +51,6 @@ Server::Server() {
 		exit(1);
 	}
 
-	//Need to bind a local address to a socket in here
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Binding socket failed" << endl;
@@ -66,16 +60,10 @@ Server::Server() {
 		exit(1);
 	}
 
-	//result address info is no longer needed after binding
 	freeaddrinfo(result);
 
-	//Before listening to sockets to check if new clients are connecting, server needs to prep files
-	fa = new FileAccessor();
-	su = new StringUtilities();
-	files = fa->getLines(configFile);
+	loadFiles();
 
-	//Listen to the socket
-	//SOMAXCONN instructs the Winsock provider for this socket to allow a maximum reasonable number of pending connections in the queue
 	iResult = listen(ListenSocket, SOMAXCONN);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Listen failed with error: %ld\n" << WSAGetLastError() << endl;
@@ -83,21 +71,12 @@ Server::Server() {
 		WSACleanup();
 		exit(1);
 	}
+}
 
-	//Accepting a socket
-	//Normally this needs to be in a loop to continue accepting clients
-	/*
-	ClientSocket = INVALID_SOCKET;
-	ClientSocket = accept(ListenSocket, NULL, NULL);
-	if (ClientSocket == INVALID_SOCKET) {
-		cout << "Accept failed: " << WSAGetLastError() << endl;
-		closesocket(ListenSocket);
-		WSACleanup();
-		exit(1);
-	}
-
-	closesocket(ListenSocket);
-	*/
+void Server::loadFiles() {
+	fa = new FileAccessor();
+	su = new StringUtilities();
+	files = fa->getLines(configFile);
 }
 
 void Server::update() {
@@ -156,8 +135,6 @@ int Server::receiveData() {
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
 		if (iResult > 0) {
-			//cout << "Server received" << endl;
-			//cout << recvbuf << endl;
 			iSendResult = sendData(ConnectSocket, recvbuf, iResult);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
