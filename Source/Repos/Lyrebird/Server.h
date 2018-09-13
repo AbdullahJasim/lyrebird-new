@@ -41,6 +41,7 @@ private:
 	static unsigned int clientId;
 	void loadFiles();
 	void signalClientsToClose();
+	void waitForAllResponses();
 };
 
 #endif

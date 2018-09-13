@@ -104,8 +104,8 @@ int Server::sendData(unsigned int client, SOCKET targetSocket) {
 	//All files have been sent already, no need to send more data
 	//Might need to modify this to signal the clients to close their connections
 	if (filesIndex >= files.size()) {
-		//signalClientsToClose();
-		//waitForAllResponses();
+		signalClientsToClose();
+		waitForAllResponses();
 		//disconnect();
 		return 0;
 	}
@@ -156,6 +156,7 @@ int Server::receiveData() {
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
 				closesocket(ClientSocket);
+				clientId--;
 				WSACleanup();
 				return -1;
 			}
@@ -173,15 +174,15 @@ int Server::receiveData() {
 int Server::disconnect() {
 	int iResult;
 
-	iResult = shutdown(ClientSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		cout << "Shutdown server failed: " << WSAGetLastError() << endl;
-		closesocket(ClientSocket);
-		WSACleanup();
-		return -1;
-	}
+	//iResult = shutdown(ClientSocket, SD_SEND);
+	//if (iResult == SOCKET_ERROR) {
+		//cout << "Shutdown server failed: " << WSAGetLastError() << endl;
+		//closesocket(ClientSocket);
+		//WSACleanup();
+		//return -1;
+	//}
 
-	closesocket(ClientSocket);
+	//closesocket(ClientSocket);
 	WSACleanup();
 	return 0;
 }
@@ -196,4 +197,31 @@ void Server::signalClientsToClose() {
 	for (it = sessions.begin(); it != sessions.end(); it++) {
 		send(it->second, endSignal, 21, 0);
 	}
+}
+
+void Server::waitForAllResponses() {
+	int recvbuflen = DEFAULT_BUFLEN;
+	char recvbuf[DEFAULT_BUFLEN];
+	int iResult;
+
+	map<unsigned int, SOCKET>::iterator it;
+
+	while (1) {
+		for (it = sessions.begin(); it != sessions.end(); it++) {
+			iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+
+			if (iResult > 0) {
+				if (su->wildcardCompare(recvbuf, "TERMINATED")) {
+					shutdown(it->second, SD_SEND);
+				}
+			}
+			clientId--;
+		}
+
+		if (clientId--) {
+			disconnect();
+			return;
+		}
+	}
+
 }

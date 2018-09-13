@@ -103,18 +103,16 @@ int Client::receiveData() {
 		iResult = 0;
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 
-		//The buffer sometimes receives garbage value, so need to check if it's null terminated already
-		if (iResult > 0 && recvbuf[0] != '\0') {
-
-			cout << "Client received to decrypt: " << recvbuf << endl;
+		if (iResult > 0) {
+			if (su->wildcardCompare(recvbuf, "TERMINATE_CONNECTION")) {
+				send(ConnectSocket, "TERMINATED", 11, 0);
+				disconnect();
+				return 0;
+			}
 
 			vector<string> tweets = su->stringToVector(recvbuf);
 			vector<string> decryptedTweets = decryptor->decryptTweets(tweets);
 			string decryptedBuffer = su->vectorToString(decryptedTweets);
-
-			for (unsigned int i = 0; i < decryptedTweets.size(); i++) {
-				cout << decryptedTweets[i] << endl;
-			}
 
 			sendData(decryptedBuffer);
 		} else if (iResult == 0) {

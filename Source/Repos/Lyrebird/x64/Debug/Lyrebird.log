@@ -1,4 +1,3 @@
-﻿  Client.cpp
-c:\users\minta\source\repos\lyrebird\client.cpp(45): warning C4553: '==': result of expression not used; did you intend '='?
-c:\users\minta\source\repos\lyrebird\client.cpp(102): warning C4715: 'Client::sendData': not all control paths return a value
+﻿  Server.cpp
+c:\users\minta\source\repos\lyrebird\server.cpp(175): warning C4101: 'iResult': unreferenced local variable
   Lyrebird.vcxproj -> C:\Users\minta\Source\Repos\Lyrebird\x64\Debug\Lyrebird.exe
