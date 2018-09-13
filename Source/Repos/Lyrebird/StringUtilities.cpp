@@ -29,25 +29,32 @@ vector<string> StringUtilities::stringToVector(string input, string delim) {
 		pos = input.find(delim);
 	}
 
+
 	return results;
 }
 
 vector<string> StringUtilities::splitLine(string line) {
-	return stringToVector(line, " ");
+	vector<string> results;
+
+	std::istringstream iss(line);
+	for (std::string s; iss >> s; ) results.push_back(s);
+
+	return results;
 }
 
 bool StringUtilities::wildcardCompare (string input1, string input2) {
 	int i = 0;
 
-	while (input1.at(i) != '\0' && input2.at(i) != '\0') {
-		if (input1.at(i) != input2.at(i)) {
-			cout << "Comparing" << input1.at(i) << " and " << input2.at(i) << endl;
-			//cout << "False" << endl;
-			return false;
+	try {
+		while (input1.at(i) != '\0' && input2.at(i) != '\0') {
+			if (input1.at(i) != input2.at(i)) return false;
+
+			i++;
 		}
-		i++;
+	}
+	catch (out_of_range const& exc) {
+
 	}
 
-	cout << "True" << endl;
 	return true;
 }

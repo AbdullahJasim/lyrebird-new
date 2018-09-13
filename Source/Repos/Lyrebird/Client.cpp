@@ -68,29 +68,23 @@ Client::Client() {
 }
 
 void Client::update() {
-	sendData();
+	sendData("INITIATE_CONNECTION");
 
 	while (1) {
 		receiveData();
 	}
 }
 
-int Client::sendData() {
-	int recvbuflen = DEFAULT_BUFLEN;
-	char sendbuf[] = "INITIATE_CONNECTION";
+int Client::sendData(string data) {
+	int buflen = DEFAULT_BUFLEN;
+	char sendbuf[DEFAULT_BUFLEN] = {'\0'};
 	int iResult;
 
-	iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
-	if (iResult == SOCKET_ERROR) {
-		cout << "Sending initial packet failed" << endl;
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return -1;
-	}
+	data.copy(sendbuf, data.size(), 0);
 
-	iResult = shutdown(ConnectSocket, SD_SEND);
+	iResult = send(ConnectSocket, sendbuf, buflen, 0);
 	if (iResult == SOCKET_ERROR) {
-		cout << "Shutting down the client's socket failed" << endl;
+		cout << "Sending packet failed: " << WSAGetLastError() << endl;
 		closesocket(ConnectSocket);
 		WSACleanup();
 		return -1;
@@ -108,17 +102,21 @@ int Client::receiveData() {
 	while (1) {
 		iResult = 0;
 		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0) {
+
+		//The buffer sometimes receives garbage value, so need to check if it's null terminated already
+		if (iResult > 0 && recvbuf[0] != '\0') {
+
 			cout << "Client received to decrypt: " << recvbuf << endl;
-			//There's an issue where the rest of the packets are lost here, fix later
-			//recv is also returning a value > 0 the second time it gets called, even when server
-			//does not send any data, resulting in an empty recvbuf (or \n)
+
 			vector<string> tweets = su->stringToVector(recvbuf);
 			vector<string> decryptedTweets = decryptor->decryptTweets(tweets);
+			string decryptedBuffer = su->vectorToString(decryptedTweets);
 
 			for (unsigned int i = 0; i < decryptedTweets.size(); i++) {
 				cout << decryptedTweets[i] << endl;
 			}
+
+			sendData(decryptedBuffer);
 		} else if (iResult == 0) {
 			//cout << "Connection closed" << endl;
 			//return 0;

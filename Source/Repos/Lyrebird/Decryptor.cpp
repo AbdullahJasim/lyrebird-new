@@ -1,9 +1,5 @@
 #include "Decryptor.h"
 
-#include <algorithm> 
-#include <cctype>
-#include <locale>
-
 using namespace std;
 
 const int SPACING = 8;

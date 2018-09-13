@@ -4,6 +4,10 @@
 
 #include "FileAccessor.h"
 
+#include <algorithm> 
+#include <cctype>
+#include <locale>
+
 #include <cstdio>
 #include <map>
 

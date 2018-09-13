@@ -27,7 +27,7 @@ public:
 	int disconnect();
 
 private:
-	int sendData();
+	int sendData(std::string data);
 	int receiveData();
 };
 

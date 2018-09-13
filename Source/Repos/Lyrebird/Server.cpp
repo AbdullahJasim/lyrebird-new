@@ -107,27 +107,29 @@ int Server::sendData(unsigned int client, SOCKET targetSocket) {
 		//signalClientsToClose();
 		//waitForAllResponses();
 		//disconnect();
-		return -1;
+		return 0;
 	}
 
 	//Send the contents of the next file to the client
 	//Change the contents of the files into a string
-	string currentLine = (su->vectorToString(fa->getLines(files[filesIndex])));
-
-	cout << "Line is " << currentLine << endl;
+	string currentLine = files[filesIndex];
 
 	vector<string> fileNames = su->splitLine(files[filesIndex]);
 
-	cout << "Files are: " << fileNames[0] << " and " << fileNames[1] << endl;
-
-	const char* tempChar = fileNames[0].c_str(); //temp.c_str();
 	int buflen = DEFAULT_BUFLEN;
+
+	string temp = su->vectorToString(fa->getLines(fileNames[0]));
+	char buffer[DEFAULT_BUFLEN] = {'\0'};
+
+	temp.copy(buffer, temp.size(), 0);
+
+
 	filesDistributed.insert(pair<unsigned int, string>(client, fileNames[1]));
 	filesIndex++;
 
-	cout << "Server sending" << tempChar << endl;
+	//cout << "Server sending " << buffer << endl;
 
-	return send(targetSocket, tempChar, buflen, 0);
+	return send(targetSocket, buffer, buflen, 0);
 }
 
 int Server::receiveData() {
