@@ -71,7 +71,9 @@ void Client::update() {
 	sendData("INITIATE_CONNECTION");
 
 	while (1) {
-		receiveData();
+		int iResult = receiveData();
+
+		if (iResult == 0) return;
 	}
 }
 

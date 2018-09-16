@@ -180,13 +180,13 @@ int Server::receiveData() {
 int Server::disconnect() {
 	int iResult;
 
-	iResult = shutdown(ClientSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		cout << "Shutdown server failed: " << WSAGetLastError() << endl;
-		closesocket(ClientSocket);
-		WSACleanup();
-		return -1;
-	}
+	//iResult = shutdown(ClientSocket, SD_SEND);
+	//if (iResult == SOCKET_ERROR) {
+		//cout << "Shutdown server failed: " << WSAGetLastError() << endl;
+		//closesocket(ClientSocket);
+		//WSACleanup();
+		//return -1;
+	//}
 
 	//closesocket(ClientSocket);
 	WSACleanup();
