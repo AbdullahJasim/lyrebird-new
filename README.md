@@ -30,9 +30,9 @@ Currently I feel like the project is more or less done. Overall I am very happy 
 beginning, and it helped make my code very modular. Some parts were more difficult, such as the Winsock library which was significantly 
 more difficult to use than the Unix C one. However, building modular code helped me make changes and refactor the code easily.
 
-I plan to use most of these classes in a later project. My aim is to create a raycaster to render objects in OpenGL. Then to use
-that raycaster to make a simple game, and finally use this project to handle server and client communication to transfer game data.
+I plan to use most of these classes in a later project. My aim is to create a raytracer to render objects in OpenGL. Then to use
+that raytracer to make a simple game, and finally use this project to handle server and client communication to transfer game data.
 
 My next two projects can be found here:
-https://github.com/AbdullahJasim/RayCaster
+https://github.com/AbdullahJasim/Raytracer
 https://github.com/AbdullahJasim/FishEatFish-new
