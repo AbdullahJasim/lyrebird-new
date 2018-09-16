@@ -11,10 +11,9 @@ const string VALUES_FILE = "charValues.txt";
 map<char, int> VALUES_MAP;
 
 std::vector<std::string> Decryptor::decryptTweets(std::string inputFile, std::string outputFile) {
-	FileAccessor* fa = new FileAccessor;
-	vector<string> tweets = fa->getLines(inputFile);
+	vector<string> tweets = FileAccessor::getLines(inputFile);
 	tweets = decryptTweets(tweets); 
-	fa->saveFile(tweets, outputFile);
+	FileAccessor::saveFile(tweets, outputFile);
 	return tweets;
 }
 
@@ -143,8 +142,7 @@ std::vector<char> Decryptor::decipherNumbers(std::vector<long long> nums) {
 }
 
 void Decryptor::getMappedValues(std::string fileName) {
-	FileAccessor* fa = new FileAccessor;
-	vector<string> values = fa->getLines(fileName);
+	vector<string> values = FileAccessor::getLines(fileName);
 
 	for (unsigned int i = 0; i < values.size(); i++) {
 		VALUES_MAP.insert(pair<char, int>(values[i][0], i));

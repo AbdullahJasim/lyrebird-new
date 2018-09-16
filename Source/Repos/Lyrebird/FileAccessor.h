@@ -13,15 +13,15 @@ class FileAccessor {
 public:
 	//Gets lines from a file
 	//Returns a vector of strings, each string being a line
-	std::vector<std::string> getLines(std::string fileName);
+	static std::vector<std::string> getLines(std::string fileName);
 
 	//Takes a list of tweets and a filename and writes those tweets onto that file / destination
-	void saveFile(std::vector<std::string> lines, std::string fileName);
+	static void saveFile(std::vector<std::string> lines, std::string fileName);
 
 private:
 	//Takes a file and parses the lines in it
 	//Returns a vector of strings, each string being a line
-	std::vector<std::string> parseLines(std::ifstream& tweetsFile);
+	static std::vector<std::string> parseLines(std::ifstream& tweetsFile);
 };
 
 #endif

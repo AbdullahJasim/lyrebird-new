@@ -29,8 +29,6 @@ private:
 	std::map<unsigned int, SOCKET> sessions;
 	std::map<unsigned int, std::string> filesDistributed;
 	std::vector<std::string> files;
-	FileAccessor* fa;
-	StringUtilities* su;
 
 	int sendData(unsigned int client, SOCKET targetSocket);
 	int receiveData();

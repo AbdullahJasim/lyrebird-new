@@ -76,9 +76,7 @@ Server::Server() {
 }
 
 void Server::loadFiles() {
-	fa = new FileAccessor();
-	su = new StringUtilities();
-	files = fa->getLines(CONFIG_FILE);
+	files = FileAccessor::getLines(CONFIG_FILE);
 }
 
 //Each frame listen to any new clients requesting a connection, add them to session map
@@ -106,9 +104,9 @@ int Server::sendData(unsigned int client, SOCKET targetSocket) {
 	}
 
 	string currentLine = files[filesIndex];
-	vector<string> fileNames = su->splitLine(files[filesIndex]);
+	vector<string> fileNames = StringUtilities::splitLine(files[filesIndex]);
 
-	string temp = su->vectorToString(fa->getLines(fileNames[0]));
+	string temp = StringUtilities::vectorToString(FileAccessor::getLines(fileNames[0]));
 	char buffer[DEFAULT_BUFLEN] = {'\0'};
 	temp.copy(buffer, temp.size(), 0);
 
@@ -128,7 +126,7 @@ int Server::receiveData() {
 		int iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
 
 		if (iResult > 0) {
-			if (!su->wildcardCompare(recvbuf, INIT_SIGNAL)) {
+			if (!StringUtilities::wildcardCompare(recvbuf, INIT_SIGNAL)) {
 				saveTweet(recvbuf, it->first);
 			}
 
@@ -152,10 +150,10 @@ int Server::receiveData() {
 }
 
 void Server::saveTweet(char tweet[], int client) {
-	vector<string> output = su->stringToVector(tweet);
+	vector<string> output = StringUtilities::stringToVector(tweet);
 	map<unsigned int, string>::iterator tempIt;
 	tempIt = filesDistributed.find(client);
-	fa->saveFile(output, tempIt->second);
+	FileAccessor::saveFile(output, tempIt->second);
 }
 
 //Send termination signal to all connected clients
@@ -175,7 +173,7 @@ void Server::waitForAllResponses() {
 		for (it = sessions.begin(); it != sessions.end(); it++) {
 			int iResult = recv(it->second, recvbuf, DEFAULT_BUFLEN, 0);
 
-			if (iResult > 0 && su->wildcardCompare(recvbuf, "TERMINATED")) {
+			if (iResult > 0 && StringUtilities::wildcardCompare(recvbuf, "TERMINATED")) {
 					shutdown(it->second, SD_SEND);
 					sessions.erase(it);
 					clients--;

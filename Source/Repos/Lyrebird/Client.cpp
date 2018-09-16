@@ -75,7 +75,6 @@ void Client::update() {
 	sendData(INIT_SIGNAL);
 
 	decryptor = new Decryptor();
-	su = new StringUtilities();
 
 	while (1) {
 		if (receiveData() == 0) return;
@@ -91,15 +90,15 @@ int Client::receiveData() {
 		 int iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
 
 		if (iResult > 0) {
-			if (su->wildcardCompare(recvbuf, TERM_SIGNAL)) {
+			if (StringUtilities::wildcardCompare(recvbuf, TERM_SIGNAL)) {
 				send(ConnectSocket, "TERMINATED", 11, 0);
 				disconnect();
 				return 0;
 			}
 
-			vector<string> tweets = su->stringToVector(recvbuf);
+			vector<string> tweets = StringUtilities::stringToVector(recvbuf);
 			vector<string> decryptedTweets = decryptor->decryptTweets(tweets);
-			string decryptedBuffer = su->vectorToString(decryptedTweets);
+			string decryptedBuffer = StringUtilities::vectorToString(decryptedTweets);
 
 			sendData(decryptedBuffer);
 		}
