@@ -1,3 +1,2 @@
 ﻿  Server.cpp
-c:\users\minta\source\repos\lyrebird\server.cpp(175): warning C4101: 'iResult': unreferenced local variable
-  Lyrebird.vcxproj -> C:\Users\minta\Source\Repos\Lyrebird\x64\Debug\Lyrebird.exe
+  Lyrebird.vcxproj -> C:\GitProjects\lyrebird-new\Source\Repos\Lyrebird\x64\Debug\Lyrebird.exe

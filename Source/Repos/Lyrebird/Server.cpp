@@ -93,7 +93,9 @@ void Server::update() {
 			clientId++;
 		}
 
-		receiveData();
+		int iResult = receiveData();
+
+		if (iResult == 0) return;
 	}
 
 	exit(1);
@@ -160,6 +162,10 @@ int Server::receiveData() {
 				WSACleanup();
 				return -1;
 			}
+
+			if (iSendResult == 0) return 0;
+
+			return iResult;
 		} else if (iResult == 0) {
 
 		} else {
@@ -168,19 +174,19 @@ int Server::receiveData() {
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 int Server::disconnect() {
 	int iResult;
 
-	//iResult = shutdown(ClientSocket, SD_SEND);
-	//if (iResult == SOCKET_ERROR) {
-		//cout << "Shutdown server failed: " << WSAGetLastError() << endl;
-		//closesocket(ClientSocket);
-		//WSACleanup();
-		//return -1;
-	//}
+	iResult = shutdown(ClientSocket, SD_SEND);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Shutdown server failed: " << WSAGetLastError() << endl;
+		closesocket(ClientSocket);
+		WSACleanup();
+		return -1;
+	}
 
 	//closesocket(ClientSocket);
 	WSACleanup();
@@ -218,7 +224,7 @@ void Server::waitForAllResponses() {
 			clientId--;
 		}
 
-		if (clientId--) {
+		if (clientId == 0) {
 			disconnect();
 			return;
 		}
