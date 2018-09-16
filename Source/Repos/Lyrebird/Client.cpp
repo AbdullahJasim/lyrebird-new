@@ -74,8 +74,6 @@ Client::Client() {
 void Client::update() {
 	sendData(INIT_SIGNAL);
 
-	decryptor = new Decryptor();
-
 	while (1) {
 		if (receiveData() == 0) return;
 	}
@@ -97,7 +95,7 @@ int Client::receiveData() {
 			}
 
 			vector<string> tweets = StringUtilities::stringToVector(recvbuf);
-			vector<string> decryptedTweets = decryptor->decryptTweets(tweets);
+			vector<string> decryptedTweets = Decryptor::decryptTweets(tweets);
 			string decryptedBuffer = StringUtilities::vectorToString(decryptedTweets);
 
 			sendData(decryptedBuffer);

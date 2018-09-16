@@ -22,7 +22,6 @@ public:
 
 private:
 	SOCKET ConnectSocket;
-	Decryptor* decryptor;
 
 	int sendData(std::string data);
 	int receiveData();
