@@ -12,7 +12,6 @@ string StringUtilities::vectorToString(vector<string> lines) {
 }
 
 vector<string> StringUtilities::stringToVector(string input) {
-	cout << "Parsing " << input << endl;
 	return stringToVector(input, "\n");
 }
 
