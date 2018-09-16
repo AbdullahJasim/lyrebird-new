@@ -1,4 +1,2 @@
-﻿  Client.cpp
-c:\gitprojects\lyrebird-new\source\repos\lyrebird\client.cpp(45): warning C4553: '==': result of expression not used; did you intend '='?
-c:\gitprojects\lyrebird-new\source\repos\lyrebird\client.cpp(94): warning C4715: 'Client::sendData': not all control paths return a value
+﻿  Server.cpp
   Lyrebird.vcxproj -> C:\GitProjects\lyrebird-new\Source\Repos\Lyrebird\x64\Debug\Lyrebird.exe

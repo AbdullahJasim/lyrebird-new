@@ -19,29 +19,26 @@
 
 class Server {
 public:
-	SOCKET ConnectSocket;
-	SOCKET ListenSocket;
-	SOCKET ClientSocket;
-
-	std::map<unsigned int, SOCKET> sessions;
-	std::map<unsigned int, std::string> filesDistributed;
-	FileAccessor* fa;
-	StringUtilities* su;
-	std::string configFile;
-	std::vector<std::string> files;
-	int filesIndex;
-
 	Server();
 	void update();
-	int disconnect();
 
 private:
+	unsigned int filesIndex;
+	unsigned int clients;
+	SOCKET ListenSocket;
+	std::map<unsigned int, SOCKET> sessions;
+	std::map<unsigned int, std::string> filesDistributed;
+	std::vector<std::string> files;
+	FileAccessor* fa;
+	StringUtilities* su;
+
 	int sendData(unsigned int client, SOCKET targetSocket);
 	int receiveData();
-	static unsigned int clientId;
 	void loadFiles();
 	void signalClientsToClose();
 	void waitForAllResponses();
+	void saveTweet(char tweet[], int client);
+	void disconnect();
 };
 
 #endif

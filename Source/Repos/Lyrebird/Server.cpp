@@ -2,15 +2,17 @@
 
 using namespace std;
 
-unsigned int Server::clientId;
+const string CONFIG_FILE = "config.txt";
+const string INIT_SIGNAL = "INITIATE_CONNECTION";
+const char TERM_SIGNAL[] = "TERMINATE_CONNECTION";
 
+//Constructor will setup the listening socket and load the files that need decryption
 Server::Server() {
 	WSADATA wsaData;
 	int iResult;
 
-	clientId = 0;
+	clients = 0;
 	filesIndex = 0;
-	configFile = "config.txt";
 
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -19,7 +21,6 @@ Server::Server() {
 	}
 
 	struct addrinfo *result = NULL;
-	struct addrinfo *ptr = NULL;
 	struct addrinfo hints;
 
 	ZeroMemory(&hints, sizeof(hints));
@@ -45,11 +46,10 @@ Server::Server() {
 	}
 
 	u_long iMode = 1;
-
 	iResult = ioctlsocket(ListenSocket, FIONBIO, &iMode);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Changing socket mode to non-blocking failed" << endl;
-		closesocket(ConnectSocket);
+		closesocket(ListenSocket);
 		WSACleanup();
 		exit(1);
 	}
@@ -64,7 +64,6 @@ Server::Server() {
 	}
 
 	freeaddrinfo(result);
-
 	loadFiles();
 
 	iResult = listen(ListenSocket, SOMAXCONN);
@@ -79,86 +78,68 @@ Server::Server() {
 void Server::loadFiles() {
 	fa = new FileAccessor();
 	su = new StringUtilities();
-	files = fa->getLines(configFile);
+	files = fa->getLines(CONFIG_FILE);
 }
 
+//Each frame listen to any new clients requesting a connection, add them to session map
+//Then receive any data sent by already connected clients
 void Server::update() {
 	while (1) {
-		//Each frame, the server will check for new clients and then it will listen to already connected clients
-		ClientSocket = INVALID_SOCKET;
+		SOCKET ClientSocket = INVALID_SOCKET;
 		ClientSocket = accept(ListenSocket, NULL, NULL);
-		//If a new client is found, inser the mapping of its socket to the sessions table
+
 		if (ClientSocket != INVALID_SOCKET) {
-			sessions.insert(pair<unsigned int, SOCKET>(clientId, ClientSocket));
-			clientId++;
+			sessions.insert(pair<unsigned int, SOCKET>(clients, ClientSocket));
+			clients++;
 		}
 
-		int iResult = receiveData();
-
-		if (iResult == 0) return;
+		if (receiveData() == 0) return;
 	}
-
-	exit(1);
 }
 
+//If all the files have already been sent, signal all clients to close their connection and return 0
+//Otherwise, get the content of the next file and send it to the client
 int Server::sendData(unsigned int client, SOCKET targetSocket) {
-
-	//All files have been sent already, no need to send more data
-	//Might need to modify this to signal the clients to close their connections
 	if (filesIndex >= files.size()) {
 		signalClientsToClose();
 		waitForAllResponses();
-		//disconnect();
+		disconnect();
 		return 0;
 	}
 
-	//Send the contents of the next file to the client
-	//Change the contents of the files into a string
 	string currentLine = files[filesIndex];
-
 	vector<string> fileNames = su->splitLine(files[filesIndex]);
-
-	int buflen = DEFAULT_BUFLEN;
 
 	string temp = su->vectorToString(fa->getLines(fileNames[0]));
 	char buffer[DEFAULT_BUFLEN] = {'\0'};
-
 	temp.copy(buffer, temp.size(), 0);
-
 
 	filesDistributed.insert(pair<unsigned int, string>(client, fileNames[1]));
 	filesIndex++;
 
-	//cout << "Server sending " << buffer << endl;
-
-	return send(targetSocket, buffer, buflen, 0);
+	return send(targetSocket, buffer, DEFAULT_BUFLEN, 0);
 }
 
+//Check all connected clients for sent data
+//If the data the client has sent is not the initial connection then save the tweet into the mapped output file
 int Server::receiveData() {
-	int recvbuflen = DEFAULT_BUFLEN;
 	char recvbuf[DEFAULT_BUFLEN];
-	int iResult, iSendResult;
 
-	map<unsigned int, SOCKET>::iterator it;
-	for (it = sessions.begin(); it != sessions.end(); it++) {
-		ConnectSocket = it->second;
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+	for (map<unsigned int, SOCKET>::iterator it = sessions.begin(); it != sessions.end(); it++) {
+		SOCKET ConnectSocket = it->second;
+		int iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
 
 		if (iResult > 0) {
-			cout << "Received packet from client" << endl;
-			if (!su->wildcardCompare(recvbuf, "INITIATE_CONNECTION")) { //recvbuf != "INITIATE_CONNECTION") {
-				cout << "Received decrypted string" << endl;
-				vector<string> output = su->stringToVector(recvbuf);
-				map<unsigned int, string>::iterator tempIt;
-				tempIt = filesDistributed.find(it->first);
-				fa->saveFile(output, tempIt->second);
+			if (!su->wildcardCompare(recvbuf, INIT_SIGNAL)) {
+				saveTweet(recvbuf, it->first);
 			}
 
-			iSendResult = sendData(it->first, ConnectSocket);
+			int iSendResult = sendData(it->first, ConnectSocket);
 			if (iSendResult == SOCKET_ERROR) {
 				cout << "Sending data to client failed" << endl;
-				closesocket(ClientSocket);
-				clientId--;
+				closesocket(it->second);
+				sessions.erase(it);
+				clients--;
 				WSACleanup();
 				return -1;
 			}
@@ -166,68 +147,51 @@ int Server::receiveData() {
 			if (iSendResult == 0) return 0;
 
 			return iResult;
-		} else if (iResult == 0) {
-
-		} else {
-			//closesocket(ClientSocket);
-			//WSACleanup();
 		}
 	}
 
 	return 1;
 }
 
-int Server::disconnect() {
-	int iResult;
-
-	//iResult = shutdown(ClientSocket, SD_SEND);
-	//if (iResult == SOCKET_ERROR) {
-		//cout << "Shutdown server failed: " << WSAGetLastError() << endl;
-		//closesocket(ClientSocket);
-		//WSACleanup();
-		//return -1;
-	//}
-
-	//closesocket(ClientSocket);
-	WSACleanup();
-	return 0;
+void Server::saveTweet(char tweet[], int client) {
+	vector<string> output = su->stringToVector(tweet);
+	map<unsigned int, string>::iterator tempIt;
+	tempIt = filesDistributed.find(client);
+	fa->saveFile(output, tempIt->second);
 }
 
+//Send termination signal to all connected clients
 void Server::signalClientsToClose() {
-	//Once all files have been decrypted, send the string "TERMINATE_CONNECTION" to all clients
-	//This signals to the cliens that they need to close their connections
-
-	char endSignal[] = "TERMINATE_CONNECTION";
-
 	map<unsigned int, SOCKET>::iterator it;
 	for (it = sessions.begin(); it != sessions.end(); it++) {
-		send(it->second, endSignal, 21, 0);
+		send(it->second, TERM_SIGNAL, 21, 0);
 	}
 }
 
 void Server::waitForAllResponses() {
-	int recvbuflen = DEFAULT_BUFLEN;
 	char recvbuf[DEFAULT_BUFLEN];
-	int iResult;
 
 	map<unsigned int, SOCKET>::iterator it;
 
 	while (1) {
 		for (it = sessions.begin(); it != sessions.end(); it++) {
-			iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+			int iResult = recv(it->second, recvbuf, DEFAULT_BUFLEN, 0);
 
-			if (iResult > 0) {
-				if (su->wildcardCompare(recvbuf, "TERMINATED")) {
+			if (iResult > 0 && su->wildcardCompare(recvbuf, "TERMINATED")) {
 					shutdown(it->second, SD_SEND);
-				}
+					sessions.erase(it);
+					clients--;
 			}
-			clientId--;
 		}
 
-		if (clientId == 0) {
+		if (clients == 0) {
 			disconnect();
 			return;
 		}
 	}
+}
 
+void Server::disconnect() {
+	closesocket(ListenSocket);
+	WSACleanup();
 }
