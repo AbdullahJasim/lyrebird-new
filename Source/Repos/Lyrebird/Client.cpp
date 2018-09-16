@@ -2,6 +2,10 @@
 
 using namespace std;
 
+const string INIT_SIGNAL = "INITIATE_CONNECTION";
+const char TERM_SIGNAL[] = "TERMINATE_CONNECTION";
+
+//Constructor will setup the connection socket to the server
 Client::Client() {
 	WSADATA wsaData;
 	int iResult;
@@ -57,7 +61,6 @@ Client::Client() {
 	}
 
 	u_long iMode = 1;
-
 	iResult = ioctlsocket(ConnectSocket, FIONBIO, &iMode);
 	if (iResult == SOCKET_ERROR) {
 		cout << "Changing socket to non-blocking failed" << endl;
@@ -67,46 +70,28 @@ Client::Client() {
 	}
 }
 
+//Each frame receive data from server
 void Client::update() {
-	sendData("INITIATE_CONNECTION");
-
-	while (1) {
-		int iResult = receiveData();
-
-		if (iResult == 0) return;
-	}
-}
-
-int Client::sendData(string data) {
-	int buflen = DEFAULT_BUFLEN;
-	char sendbuf[DEFAULT_BUFLEN] = {'\0'};
-	int iResult;
-
-	data.copy(sendbuf, data.size(), 0);
-
-	iResult = send(ConnectSocket, sendbuf, buflen, 0);
-	if (iResult == SOCKET_ERROR) {
-		cout << "Sending packet failed: " << WSAGetLastError() << endl;
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return -1;
-	}
-}
-
-int Client::receiveData() {
-	int recvbuflen = DEFAULT_BUFLEN;
-	char recvbuf[DEFAULT_BUFLEN];
-	int iResult;
+	sendData(INIT_SIGNAL);
 
 	decryptor = new Decryptor();
 	su = new StringUtilities();
 
 	while (1) {
-		iResult = 0;
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		if (receiveData() == 0) return;
+	}
+}
+
+//If the server sends a termination signal, send a final signal back then disconnect
+//Otherwise decrypt the message from the server and send it back
+int Client::receiveData() {
+	char recvbuf[DEFAULT_BUFLEN];
+
+	while (1) {
+		 int iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
 
 		if (iResult > 0) {
-			if (su->wildcardCompare(recvbuf, "TERMINATE_CONNECTION")) {
+			if (su->wildcardCompare(recvbuf, TERM_SIGNAL)) {
 				send(ConnectSocket, "TERMINATED", 11, 0);
 				disconnect();
 				return 0;
@@ -117,12 +102,21 @@ int Client::receiveData() {
 			string decryptedBuffer = su->vectorToString(decryptedTweets);
 
 			sendData(decryptedBuffer);
-		} else if (iResult == 0) {
-			//cout << "Connection closed" << endl;
-			//return 0;
-		} else {
-			//disconnect();
 		}
+	}
+}
+
+int Client::sendData(string data) {
+	char sendbuf[DEFAULT_BUFLEN] = { '\0' };
+
+	data.copy(sendbuf, data.size(), 0);
+
+	int iResult = send(ConnectSocket, sendbuf, DEFAULT_BUFLEN, 0);
+	if (iResult == SOCKET_ERROR) {
+		cout << "Sending packet failed: " << WSAGetLastError() << endl;
+		closesocket(ConnectSocket);
+		WSACleanup();
+		return -1;
 	}
 }
 

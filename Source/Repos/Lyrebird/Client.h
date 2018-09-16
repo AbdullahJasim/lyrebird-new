@@ -17,18 +17,17 @@
 
 class Client {
 public:
+	Client();
+	void update();
 
+private:
 	SOCKET ConnectSocket;
 	Decryptor* decryptor;
 	StringUtilities* su;
 
-	Client();
-	void update();
-	int disconnect();
-
-private:
 	int sendData(std::string data);
 	int receiveData();
+	int disconnect();
 };
 
 #endif

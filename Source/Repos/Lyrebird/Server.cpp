@@ -101,8 +101,6 @@ void Server::update() {
 //Otherwise, get the content of the next file and send it to the client
 int Server::sendData(unsigned int client, SOCKET targetSocket) {
 	if (filesIndex >= files.size()) {
-		signalClientsToClose();
-		waitForAllResponses();
 		disconnect();
 		return 0;
 	}
@@ -192,6 +190,8 @@ void Server::waitForAllResponses() {
 }
 
 void Server::disconnect() {
+	signalClientsToClose();
+	waitForAllResponses();
 	closesocket(ListenSocket);
 	WSACleanup();
 }

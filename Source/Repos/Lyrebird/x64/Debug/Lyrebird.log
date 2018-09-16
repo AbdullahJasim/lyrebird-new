@@ -1,2 +1,3 @@
-﻿  Server.cpp
+﻿  StringUtilities.cpp
+c:\gitprojects\lyrebird-new\source\repos\lyrebird\stringutilities.cpp(54): warning C4101: 'exc': unreferenced local variable
   Lyrebird.vcxproj -> C:\GitProjects\lyrebird-new\Source\Repos\Lyrebird\x64\Debug\Lyrebird.exe
